@@ -1,4 +1,4 @@
-# to-ico-sync [![Build Status](https://travis-ci.org/gianluca-nitti/to-ico.svg?branch=master)](https://travis-ci.org/gianluca-nitti/to-ico)
+# to-ico-sync [![Build Status](https://travis-ci.org/gianluca-nitti/to-ico-sync.svg?branch=master)](https://travis-ci.org/gianluca-nitti/to-ico-sync)
 
 This is a fork of https://github.com/kevva/to-ico that uses a simple synchronous function instead of promises, useful for node-based cli scripts.
 
