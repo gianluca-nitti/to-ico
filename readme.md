@@ -1,29 +1,30 @@
-# to-ico [![Build Status](https://travis-ci.org/kevva/to-ico.svg?branch=master)](https://travis-ci.org/kevva/to-ico)
+# to-ico-sync [![Build Status](https://travis-ci.org/gianluca-nitti/to-ico.svg?branch=master)](https://travis-ci.org/gianluca-nitti/to-ico)
 
-> Convert PNG to ICO in memory
-
+This is a fork of https://github.com/kevva/to-ico that uses a simple synchronous function instead of promises, useful for node-based cli scripts.
 
 ## Install
 
+Will be:
 ```
-$ npm install --save to-ico
+$ npm install --save to-ico-sync
 ```
-
+(this doesn't work right now, the module isn't on npm yet)
 
 ## Usage
 
 ```js
 const fs = require('fs');
-const toIco = require('to-ico');
+const toIco = require('to-ico-sync');
 
 const files = [
 	fs.readFileSync('unicorn-16x16.png'),
 	fs.readFileSync('unicorn-32x32.png')
 ];
 
-toIco(files).then(buf => {
-	fs.writeFileSync('favicon.ico', buf);
-});
+var buf = toIco(files);
+
+fs.writeFileSync('favicon.ico', buf);
+
 ```
 
 
@@ -39,5 +40,4 @@ An array of PNG image buffers. The images must have a size of `16x16`, `24x24`, 
 
 
 ## License
-
-MIT © [Kevin Martensson](http://github.com/kevva)
+MIT licensed. Copyright for portions of source code are held by Kevin Martensson as part of module [to-ico](https://www.npmjs.com/package/to-ico).
