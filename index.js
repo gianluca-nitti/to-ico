@@ -1,5 +1,5 @@
 'use strict';
-const parsePng = require('parse-png');
+const PNG = require('pngjs').PNG;
 
 const constants = {
 	bitmapSize: 40,
@@ -82,7 +82,9 @@ const createDib = (data, width, height, bpp) => {
 	return buf;
 };
 
-module.exports = input => Promise.all(input.map(x => parsePng(x))).then(data => {
+//module.exports = input => Promise.all(input.map(x => parsePng(x))).then(data => {
+module.exports = function(input){
+	var data = input.map(x => PNG.sync.read(x));
 	const header = createHeader(data.length);
 	const arr = [header];
 
@@ -104,4 +106,4 @@ module.exports = input => Promise.all(input.map(x => parsePng(x))).then(data => 
 	}
 
 	return Buffer.concat(arr, len);
-});
+};
