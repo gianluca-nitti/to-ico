@@ -1,29 +1,26 @@
 {
-  "name": "to-ico",
-  "version": "1.0.1",
-  "description": "Convert PNG to ICO in memory",
+  "name": "to-ico-sync",
+  "version": "1.0.5",
+  "description": "Convert PNG to ICO (synchronous)",
   "license": "MIT",
-  "repository": "kevva/to-ico",
-  "author": {
-    "name": "Kevin Martensson",
-    "email": "kevinmartensson@gmail.com",
-    "url": "github.com/kevva"
-  },
+  "repository": "gianluca-nitti/to-ico-sync",
+  "author": "Gianluca Nitti",
   "engines": {
     "node": ">=4"
   },
   "scripts": {
     "test": "node test.js"
   },
-  "files": [
+  "files":[
     "index.js"
   ],
+  "main": "index.js",
   "keywords": [
     "buffer",
     "convert",
-    "fast",
     "ico",
-    "png"
+    "png",
+    "sync"
   ],
   "dependencies": {
     "pngjs": "^3.0.0"

@@ -4,11 +4,9 @@ This is a fork of https://github.com/kevva/to-ico that uses a simple synchronous
 
 ## Install
 
-Will be:
 ```
 $ npm install --save to-ico-sync
 ```
-(this doesn't work right now, the module isn't on npm yet)
 
 ## Usage
 
