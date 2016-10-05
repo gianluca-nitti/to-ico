@@ -1,6 +1,6 @@
 {
   "name": "to-ico-sync",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Convert PNG to ICO (synchronous)",
   "license": "MIT",
   "repository": "gianluca-nitti/to-ico-sync",
