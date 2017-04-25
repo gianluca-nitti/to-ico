@@ -1,5 +1,8 @@
 'use strict';
+const arrify = require('arrify');
+const imageSize = require('image-size');
 const parsePng = require('parse-png');
+const resizeImg = require('resize-img');
 
 const constants = {
 	bitmapSize: 40,
@@ -9,7 +12,7 @@ const constants = {
 };
 
 const createHeader = n => {
-	const buf = new Buffer(constants.headerSize);
+	const buf = Buffer.alloc(constants.headerSize);
 
 	buf.writeUInt16LE(0, 0);
 	buf.writeUInt16LE(1, 2);
@@ -19,10 +22,10 @@ const createHeader = n => {
 };
 
 const createDirectory = (data, offset) => {
-	const buf = new Buffer(constants.directorySize);
+	const buf = Buffer.alloc(constants.directorySize);
 	const size = data.data.length + constants.bitmapSize;
-	const width = data.width <= 256 ? 0 : data.width;
-	const height = data.height <= 256 ? 0 : data.height;
+	const width = data.width === 256 ? 0 : data.width;
+	const height = data.height === 256 ? 0 : data.height;
 	const bpp = data.bpp * 8;
 
 	buf.writeUInt8(width, 0);
@@ -38,7 +41,7 @@ const createDirectory = (data, offset) => {
 };
 
 const createBitmap = (data, compression) => {
-	const buf = new Buffer(constants.bitmapSize);
+	const buf = Buffer.alloc(constants.bitmapSize);
 
 	buf.writeUInt32LE(constants.bitmapSize, 0);
 	buf.writeInt32LE(data.width, 4);
@@ -59,7 +62,7 @@ const createDib = (data, width, height, bpp) => {
 	const cols = width * bpp;
 	const rows = height * cols;
 	const end = rows - cols;
-	const buf = new Buffer(data.length);
+	const buf = Buffer.alloc(data.length);
 
 	for (let row = 0; row < rows; row += cols) {
 		for (let col = 0; col < cols; col += bpp) {
@@ -82,26 +85,62 @@ const createDib = (data, width, height, bpp) => {
 	return buf;
 };
 
-module.exports = input => Promise.all(input.map(x => parsePng(x))).then(data => {
-	const header = createHeader(data.length);
-	const arr = [header];
+const generateIco = data => {
+	return Promise.all(data.map(x => parsePng(x))).then(data => {
+		const header = createHeader(data.length);
+		const arr = [header];
 
-	let len = header.length;
-	let offset = constants.headerSize + (constants.directorySize * data.length);
+		let len = header.length;
+		let offset = constants.headerSize + (constants.directorySize * data.length);
 
-	for (const x of data) {
-		const dir = createDirectory(x, offset);
-		arr.push(dir);
-		len += dir.length;
-		offset += x.data.length + constants.bitmapSize;
+		for (const x of data) {
+			const dir = createDirectory(x, offset);
+			arr.push(dir);
+			len += dir.length;
+			offset += x.data.length + constants.bitmapSize;
+		}
+
+		for (const x of data) {
+			const header = createBitmap(x, constants.colorMode);
+			const dib = createDib(x.data, x.width, x.height, x.bpp);
+			arr.push(header, dib);
+			len += header.length + dib.length;
+		}
+
+		return Buffer.concat(arr, len);
+	});
+};
+
+const resizeImages = (data, opts) => {
+	data = data
+		.map(x => {
+			const size = imageSize(x);
+
+			return {
+				data: x,
+				width: size.width,
+				height: size.height
+			};
+		})
+		.reduce((a, b) => a.width > b.width ? a : b, {});
+
+	return Promise.all(opts.sizes.filter(x => x <= data.width).map(x => resizeImg(data.data, {
+		width: x,
+		height: x
+	})));
+};
+
+module.exports = (input, opts) => {
+	const data = arrify(input);
+
+	opts = Object.assign({
+		resize: false,
+		sizes: [16, 24, 32, 48, 64, 128, 256]
+	}, opts);
+
+	if (opts.resize) {
+		return resizeImages(data, opts).then(generateIco);
 	}
 
-	for (const x of data) {
-		const header = createBitmap(x, constants.colorMode);
-		const dib = createDib(x.data, x.width, x.height, x.bpp);
-		arr.push(header, dib);
-		len += header.length + dib.length;
-	}
-
-	return Buffer.concat(arr, len);
-});
+	return generateIco(data);
+};
